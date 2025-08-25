@@ -88,6 +88,11 @@ class SipRepositoryImpl implements SipRepository {
   }
 
   @override
+  Future<void> toggleHold(String callId) async {
+    await _sipDataSource.toggleHold(callId);
+  }
+
+  @override
   Future<void> sendDTMF(String callId, String digit) async {
     await _sipDataSource.sendDTMF(callId, digit);
   }

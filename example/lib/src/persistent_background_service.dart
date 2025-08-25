@@ -10,6 +10,7 @@ import 'package:sip_ua/sip_ua.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'user_state/sip_user.dart';
 import '../data/models/stored_credentials_model.dart';
 
@@ -30,6 +31,9 @@ class PersistentBackgroundService {
   static bool _isMainAppActive = true; // Track if main app is in foreground
   static Call? _forwardedCall; // Call forwarded to main app
   static DateTime? _lastAppStatusChange; // Track to prevent rapid switching
+  static bool _isMuted = false;
+  static bool _isSpeakerOn = false;
+  static bool _isOnHold = false;
 
   @pragma('vm:entry-point')
   static Future<void> initializeService() async {
@@ -429,6 +433,24 @@ class PersistentBackgroundService {
       final callId = data['callId'] as String;
       final digit = data['digit'] as String;
       await _handleSendDTMF(callId, digit);
+    });
+
+    service.on('toggleMute').listen((event) async {
+      final data = event as Map<String, dynamic>;
+      final callId = data['callId'] as String;
+      await _handleToggleMute(callId);
+    });
+
+    service.on('toggleSpeaker').listen((event) async {
+      final data = event as Map<String, dynamic>;
+      final callId = data['callId'] as String;
+      await _handleToggleSpeaker(callId);
+    });
+
+    service.on('toggleHold').listen((event) async {
+      final data = event as Map<String, dynamic>;
+      final callId = data['callId'] as String;
+      await _handleToggleHold(callId);
     });
 
     service.on('proceedWithBackgroundSipCall').listen((event) async {
@@ -1836,6 +1858,77 @@ class PersistentBackgroundService {
       }
     } else {
       print('❌ No matching call found for DTMF: $callId');
+    }
+  }
+
+  @pragma('vm:entry-point')
+  static Future<void> _handleToggleMute(String callId) async {
+    print('🔇 Background service toggling mute for call $callId');
+
+    Call? targetCall;
+    if (_currentActiveCall?.id == callId) {
+      targetCall = _currentActiveCall;
+    } else if (_currentIncomingCall?.id == callId) {
+      targetCall = _currentIncomingCall;
+    }
+
+    if (targetCall != null) {
+      try {
+        if (!_isMuted) {
+          targetCall.mute(true, false);
+          print('✅ Call muted in background service');
+        } else {
+          targetCall.unmute(true, false);
+          print('✅ Call unmuted in background service');
+        }
+        _isMuted = !_isMuted;
+      } catch (e) {
+        print('❌ Error toggling mute in background service: $e');
+      }
+    } else {
+      print('❌ No matching call found for mute: $callId');
+    }
+  }
+
+  @pragma('vm:entry-point')
+  static Future<void> _handleToggleSpeaker(String callId) async {
+    print('🔊 Background service toggling speaker for call $callId');
+
+    _isSpeakerOn = !_isSpeakerOn;
+    try {
+      await Helper.setSpeakerphoneOn(_isSpeakerOn);
+      print('✅ Speaker set to $_isSpeakerOn in background service');
+    } catch (e) {
+      print('❌ Error toggling speaker in background service: $e');
+    }
+  }
+
+  @pragma('vm:entry-point')
+  static Future<void> _handleToggleHold(String callId) async {
+    print('⏸️ Background service toggling hold for call $callId');
+
+    Call? targetCall;
+    if (_currentActiveCall?.id == callId) {
+      targetCall = _currentActiveCall;
+    } else if (_currentIncomingCall?.id == callId) {
+      targetCall = _currentIncomingCall;
+    }
+
+    if (targetCall != null) {
+      try {
+        if (!_isOnHold) {
+          targetCall.hold();
+          print('✅ Call placed on hold in background service');
+        } else {
+          targetCall.unhold();
+          print('✅ Call resumed from hold in background service');
+        }
+        _isOnHold = !_isOnHold;
+      } catch (e) {
+        print('❌ Error toggling hold in background service: $e');
+      }
+    } else {
+      print('❌ No matching call found for hold: $callId');
     }
   }
   

@@ -117,21 +117,21 @@ class _ModernCallScreenState extends ConsumerState<ModernCallScreen>
     HapticFeedback.lightImpact();
     final currentMuted = ref.read(isMutedProvider);
     ref.read(isMutedProvider.notifier).state = !currentMuted;
-    // TODO: Implement mute functionality
+    ref.read(callStateProvider.notifier).toggleMute(widget.call.id);
   }
 
   void _onSpeaker() {
     HapticFeedback.lightImpact();
     final currentSpeaker = ref.read(isSpeakerOnProvider);
     ref.read(isSpeakerOnProvider.notifier).state = !currentSpeaker;
-    // TODO: Implement speaker functionality
+    ref.read(callStateProvider.notifier).toggleSpeaker(widget.call.id);
   }
 
   void _onHold() {
     HapticFeedback.lightImpact();
     final currentHold = ref.read(isHoldingProvider);
     ref.read(isHoldingProvider.notifier).state = !currentHold;
-    // TODO: Implement hold functionality
+    ref.read(callStateProvider.notifier).toggleHold(widget.call.id);
   }
 
   @override

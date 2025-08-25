@@ -28,6 +28,10 @@ class ManageCallUsecase {
     await sipRepository.toggleSpeaker(callId);
   }
 
+  Future<void> toggleHold(String callId) async {
+    await sipRepository.toggleHold(callId);
+  }
+
   Future<void> sendDTMF(String callId, String digit) async {
     if (!_isValidDTMFDigit(digit)) {
       throw ArgumentError('Invalid DTMF digit: $digit');

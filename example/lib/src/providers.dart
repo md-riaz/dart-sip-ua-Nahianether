@@ -572,6 +572,33 @@ class CallStateNotifier extends StateNotifier<CallEntity?> {
     }
   }
 
+  Future<void> toggleMute(String callId) async {
+    try {
+      final sipRepo = ref.read(sipRepositoryProvider);
+      await sipRepo.toggleMute(callId);
+    } catch (error) {
+      print('❌ Toggle mute failed: $error');
+    }
+  }
+
+  Future<void> toggleSpeaker(String callId) async {
+    try {
+      final sipRepo = ref.read(sipRepositoryProvider);
+      await sipRepo.toggleSpeaker(callId);
+    } catch (error) {
+      print('❌ Toggle speaker failed: $error');
+    }
+  }
+
+  Future<void> toggleHold(String callId) async {
+    try {
+      final sipRepo = ref.read(sipRepositoryProvider);
+      await sipRepo.toggleHold(callId);
+    } catch (error) {
+      print('❌ Toggle hold failed: $error');
+    }
+  }
+
   Future<void> _logCall(CallEntity call) async {
     try {
       await _callLogService.logCall(call);
