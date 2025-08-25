@@ -27,6 +27,7 @@ abstract class SipDataSource {
   
   Future<void> toggleMute(String callId);
   Future<void> toggleSpeaker(String callId);
+  Future<void> toggleHold(String callId);
   Future<void> sendDTMF(String callId, String digit);
   
   void dispose();
@@ -314,14 +315,29 @@ class SipUADataSource implements SipDataSource, SipUaHelperListener {
 
   @override
   Future<void> toggleMute(String callId) async {
-    // This would typically interact with media stream
-    // For now, we'll leave it as a placeholder
+    print('🎙️ Toggle mute via background service: $callId');
+
+    // Delegate mute control to background service so call continues when app is backgrounded
+    final service = FlutterBackgroundService();
+    service.invoke('toggleMute', {'callId': callId});
   }
 
   @override
   Future<void> toggleSpeaker(String callId) async {
-    // This would typically interact with audio routing
-    // For now, we'll leave it as a placeholder
+    print('🔊 Toggle speaker via background service: $callId');
+
+    // Delegate speaker routing to background service
+    final service = FlutterBackgroundService();
+    service.invoke('toggleSpeaker', {'callId': callId});
+  }
+
+  @override
+  Future<void> toggleHold(String callId) async {
+    print('⏸️ Toggle hold via background service: $callId');
+
+    // Delegate hold control to background service
+    final service = FlutterBackgroundService();
+    service.invoke('toggleHold', {'callId': callId});
   }
 
   @override

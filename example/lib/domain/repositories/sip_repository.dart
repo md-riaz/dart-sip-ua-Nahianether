@@ -22,5 +22,6 @@ abstract class SipRepository {
   // Audio Controls
   Future<void> toggleMute(String callId);
   Future<void> toggleSpeaker(String callId);
+  Future<void> toggleHold(String callId);
   Future<void> sendDTMF(String callId, String digit);
 }
