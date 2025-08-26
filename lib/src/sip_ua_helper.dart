@@ -102,6 +102,8 @@ class SIPUAHelper extends EventManager {
       MediaStream? mediaStream,
       List<String>? headers,
       Map<String, dynamic>? customOptions}) async {
+    logger.d(
+        'Initiating call to $target voiceOnly=$voiceOnly headers=$headers customOptions=${customOptions?.keys}');
     if (_ua != null && _ua!.isConnected()) {
       Map<String, dynamic> options = buildCallOptions(voiceOnly);
 
@@ -134,6 +136,8 @@ class SIPUAHelper extends EventManager {
     bool useUpdate = false,
     Function(IncomingMessage?)? done,
   }) async {
+    logger.d(
+        'Renegotiating call ${call.id} voiceOnly=$voiceOnly useUpdate=$useUpdate options=${options?.keys}');
     Map<String, dynamic> finalOptions = options ?? buildCallOptions(voiceOnly);
     call.renegotiate(options: finalOptions, useUpdate: useUpdate, done: done);
   }
@@ -484,6 +488,7 @@ class SIPUAHelper extends EventManager {
       logger.e('Call ${event.id} not found!');
       return;
     }
+    logger.d('Call ${call.id} state -> ${state.state}');
     call.state = state.state;
     // Copy to prevent concurrent modification exception
     List<SipUaHelperListener> listeners = _sipUaHelperListeners.toList();
@@ -556,6 +561,8 @@ class Call {
   bool voiceOnly;
 
   void answer(Map<String, dynamic> options, {MediaStream? mediaStream = null}) {
+    logger.d(
+        'Answer call $_id options=${options.keys} mediaStream=${mediaStream?.id}');
     assert(_session != null, 'ERROR(answer): rtc session is invalid!');
     if (mediaStream != null) {
       options['mediaStream'] = mediaStream;
@@ -564,6 +571,7 @@ class Call {
   }
 
   void refer(String target) {
+    logger.d('Refer call $_id to $target');
     assert(_session != null, 'ERROR(refer): rtc session is invalid!');
     ReferSubscriber refer = _session.refer(target)!;
     refer.on(EventReferTrying(), (EventReferTrying data) {});
@@ -575,6 +583,7 @@ class Call {
   }
 
   void hangup([Map<String, dynamic>? options]) {
+    logger.d('Hangup call $_id options=${options?.keys}');
     assert(_session != null, 'ERROR(hangup): rtc session is invalid!');
     if (peerConnection != null) {
       for (MediaStream? stream in peerConnection!.getLocalStreams()) {
@@ -604,21 +613,25 @@ class Call {
   }
 
   void hold() {
+    logger.d('Hold call $_id');
     assert(_session != null, 'ERROR(hold): rtc session is invalid!');
     _session.hold();
   }
 
   void unhold() {
+    logger.d('Unhold call $_id');
     assert(_session != null, 'ERROR(unhold): rtc session is invalid!');
     _session.unhold();
   }
 
   void mute([bool audio = true, bool video = true]) {
+    logger.d('Mute call $_id audio=$audio video=$video');
     assert(_session != null, 'ERROR(mute): rtc session is invalid!');
     _session.mute(audio, video);
   }
 
   void unmute([bool audio = true, bool video = true]) {
+    logger.d('Unmute call $_id audio=$audio video=$video');
     assert(_session != null, 'ERROR(unmute): rtc session is invalid!');
     _session.unmute(audio, video);
   }
@@ -628,16 +641,21 @@ class Call {
     bool useUpdate = false,
     Function(IncomingMessage?)? done,
   }) {
+    logger.d(
+        'Renegotiate call $_id options=${options?.keys} useUpdate=$useUpdate');
     assert(_session != null, 'ERROR(renegotiate): rtc session is invalid!');
     _session.renegotiate(options: options, useUpdate: useUpdate, done: done);
   }
 
   void sendDTMF(String tones, [Map<String, dynamic>? options]) {
+    logger.d('sendDTMF call $_id tones=$tones options=${options?.keys}');
     assert(_session != null, 'ERROR(sendDTMF): rtc session is invalid!');
     _session.sendDTMF(tones, options);
   }
 
   void sendInfo(String contentType, String body, Map<String, dynamic> options) {
+    logger.d(
+        'sendInfo call $_id contentType=$contentType bodyLength=${body.length} options=${options.keys}');
     assert(_session != null, 'ERROR(sendInfo): rtc session is invalid');
     _session.sendInfo(contentType, body, options);
   }

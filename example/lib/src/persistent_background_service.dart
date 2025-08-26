@@ -52,7 +52,9 @@ class PersistentBackgroundService {
         onBackground: onIosBackground,
       ),
     );
-    
+    await service.startService();
+    _isServiceRunning = await service.isRunning();
+
     print('🔄 Persistent Background Service configured');
   }
 

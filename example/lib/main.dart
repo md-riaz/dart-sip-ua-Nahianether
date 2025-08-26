@@ -317,36 +317,17 @@ Future<void> _initializeAndConnectVPN() async {
 }
 
 Future<void> _initializeBackgroundCalling() async {
-  print('📞🔋 Initializing 24/7 background calling for both platforms...');
-  
   try {
-    if (Platform.isAndroid) {
-      print('🤖 ANDROID: Enhanced background service already configured');
-      print('🤖 ANDROID: Persistent SIP connection will activate when app goes background');
-      print('✅ ANDROID: Ready for 24/7 background calling');
-      
-    } else if (Platform.isIOS) {
-      print('🍎 iOS: Using foreground-persistent approach (no paid Apple Developer account)');
-      
-      try {
-        print('📱 iOS: Configuring extended background execution...');
-        print('💡 iOS: Without paid Apple Developer account, VoIP push notifications are not available');
-        print('💡 iOS: App will maintain SIP connection while in foreground');
-        print('📞 iOS: Background calling limited - upgrade to paid Apple Developer account for full VoIP');
-        
-        print('✅ iOS: Foreground calling configured');
-      } catch (e) {
-        print('❌ iOS: Configuration error: $e');
+    if (!PersistentBackgroundService.isServiceRunning()) {
+      if (Platform.isAndroid) {
+        await PersistentBackgroundService.startService();
+      } else if (Platform.isIOS) {
+        debugPrint(
+            '⚠️ iOS VoIP background mode requires a paid Apple Developer account');
       }
     }
-    
-    print('🎯 BACKGROUND CALLING CONFIGURED:');
-    print('🎯 ANDROID: Persistent background SIP service ✅');
-    print('🎯 iOS: Foreground calling only (requires paid Apple Developer account for VoIP) ⚠️');
-    
   } catch (e) {
-    print('❌ Background calling initialization error: $e');
-    print('💡 Background calling features may be limited');
+    debugPrint('❌ Background calling initialization error: $e');
   }
 }
 
