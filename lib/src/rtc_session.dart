@@ -588,6 +588,8 @@ class RTCSession extends EventManager implements Owner {
     // A local MediaStream is given, use it.
     if (mediaStream != null) {
       stream = mediaStream;
+      logger.d(
+          'Emitting stream event: originator=${Originator.local.name} id=${stream?.id}');
       emit(EventStream(
           session: this, originator: Originator.local, stream: stream));
     }
@@ -597,6 +599,8 @@ class RTCSession extends EventManager implements Owner {
       _localMediaStreamLocallyGenerated = true;
       try {
         stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+        logger.d(
+            'Emitting stream event: originator=${Originator.local.name} id=${stream?.id}');
         emit(EventStream(
             session: this, originator: Originator.local, stream: stream));
       } catch (error) {
@@ -1655,6 +1659,8 @@ class RTCSession extends EventManager implements Owner {
       case 'unified-plan':
         _connection!.onTrack = (RTCTrackEvent event) {
           if (event.streams.isNotEmpty) {
+            logger.d(
+                'Emitting stream event: originator=${Originator.remote.name} id=${event.streams[0].id}');
             emit(EventStream(
                 session: this,
                 originator: Originator.remote,
@@ -1664,6 +1670,8 @@ class RTCSession extends EventManager implements Owner {
         break;
       case 'plan-b':
         _connection!.onAddStream = (MediaStream stream) {
+          logger.d(
+              'Emitting stream event: originator=${Originator.remote.name} id=${stream.id}');
           emit(EventStream(
               session: this, originator: Originator.remote, stream: stream));
         };
@@ -2092,6 +2100,8 @@ class RTCSession extends EventManager implements Owner {
             _localMediaStream?.addTrack(track);
           }
         }
+        logger.d(
+            'Emitting stream event: originator=${Originator.local.name} id=${_localMediaStream?.id}');
         emit(EventStream(
             session: this,
             originator: Originator.local,
@@ -2358,6 +2368,8 @@ class RTCSession extends EventManager implements Owner {
     // A stream is given, var the app set events such as 'peerconnection' and 'connecting'.
     if (mediaStream != null) {
       stream = mediaStream;
+      logger.d(
+          'Emitting stream event: originator=${Originator.local.name} id=${stream?.id}');
       emit(EventStream(
           session: this, originator: Originator.local, stream: stream));
     } // Request for user media access.
@@ -2366,6 +2378,8 @@ class RTCSession extends EventManager implements Owner {
       _localMediaStreamLocallyGenerated = true;
       try {
         stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+        logger.d(
+            'Emitting stream event: originator=${Originator.local.name} id=${stream?.id}');
         emit(EventStream(
             session: this, originator: Originator.local, stream: stream));
       } catch (error) {
@@ -2769,6 +2783,8 @@ class RTCSession extends EventManager implements Owner {
           throw Exceptions.NotReadyError('Unkown sdp semantics $sdpSemantics');
       }
 
+      logger.d(
+          'Emitting stream event: originator=${Originator.local.name} id=${_localMediaStream?.id}');
       emit(EventStream(
           session: this,
           originator: Originator.local,
